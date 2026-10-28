@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JIRA Cross-Instance Bug Sync</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 600px;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-sync {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-sync:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-sync:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-logs {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-logs:hover {
+            background: #e0e0e0;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #4caf50;
+            display: block;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #f44336;
+            display: block;
+        }
+
+        .status.loading {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #2196f3;
+            display: block;
+        }
+
+        .status-icon {
+            margin-right: 8px;
+            font-weight: bold;
+        }
+
+        .logs-container {
+            margin-top: 30px;
+            border-top: 2px solid #e0e0e0;
+            padding-top: 20px;
+            display: none;
+        }
+
+        .logs-container.show {
+            display: block;
+        }
+
+        .logs-container h3 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .log-entry {
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .log-entry.success {
+            border-left-color: #4caf50;
+        }
+
+        .log-entry.failed {
+            border-left-color: #f44336;
+        }
+
+        .log-time {
+            color: #999;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .log-status {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .log-keys {
+            color: #666;
+            font-family: monospace;
+        }
+
+        .info-box {
+            background: #f0f7ff;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #0d47a1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔗 JIRA Bug Sync</h1>
+            <p>Sync bugs from ANAPLAN to GFDH automatically</p>
+        </div>
+
+        <div class="info-box">
+            <strong>How to use:</strong><br>
+            1. Enter an ANAPLAN bug key (e.g., ANAPLAN-824)<br>
+            2. Click "Sync to GFDH"<br>
+            3. Bug will be created in GFDH with all details<br>
+            4. Both issues will be linked automatically
+        </div>
+
+        <form id="syncForm">
+            <div class="form-group">
+                <label for="bugKey">ANAPLAN Bug Key</label>
+                <input
+                    type="text"
+                    id="bugKey"
+                    placeholder="e.g., ANAPLAN-824"
+                    required
+                    pattern="ANAPLAN-\d+"
+                    title="Format: ANAPLAN-### (e.g., ANAPLAN-824)"
+                >
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn-sync" id="syncBtn">Sync to GFDH</button>
+                <button type="button" class="btn-logs" id="logsBtn">View Logs</button>
+            </div>
+        </form>
+
+        <div class="status" id="status"></div>
+
+        <div class="logs-container" id="logsContainer">
+            <h3>Sync History</h3>
+            <div id="logsList"></div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('syncForm');
+        const bugKeyInput = document.getElementById('bugKey');
+        const syncBtn = document.getElementById('syncBtn');
+        const logsBtn = document.getElementById('logsBtn');
+        const statusDiv = document.getElementById('status');
+        const logsContainer = document.getElementById('logsContainer');
+        const logsList = document.getElementById('logsList');
+
+        // Normalize input to ANAPLAN-XXX format
+        bugKeyInput.addEventListener('input', (e) => {
+            let value = e.target.value.toUpperCase().trim();
+
+            // Remove spaces
+            value = value.replace(/\s/g, '');
+
+            // If just numbers, prepend ANAPLAN-
+            if (/^\d+$/.test(value)) {
+                value = `ANAPLAN-${value}`;
+            }
+
+            e.target.value = value;
+        });
+
+        // Form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const bugKey = bugKeyInput.value.trim();
+
+            if (!bugKey) {
+                showStatus('Please enter a bug key', 'error');
+                return;
+            }
+
+            syncBtn.disabled = true;
+            showStatus('Syncing bug...', 'loading');
+
+            try {
+                const response = await fetch('/api/sync', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ bug_key: bugKey })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showStatus(
+                        `✓ Success! ${result.anaplan_key} → ${result.gfdh_key}`,
+                        'success'
+                    );
+                    bugKeyInput.value = '';
+                    loadLogs();
+                } else {
+                    showStatus(
+                        `✗ Error: ${result.error}`,
+                        'error'
+                    );
+                }
+            } catch (error) {
+                showStatus(
+                    `✗ Network error: ${error.message}`,
+                    'error'
+                );
+            } finally {
+                syncBtn.disabled = false;
+            }
+        });
+
+        // Logs
+        logsBtn.addEventListener('click', () => {
+            logsContainer.classList.toggle('show');
+            if (logsContainer.classList.contains('show')) {
+                loadLogs();
+            }
+        });
+
+        async function loadLogs() {
+            try {
+                const response = await fetch('/api/logs');
+                const logs = await response.json();
+
+                if (logs.length === 0) {
+                    logsList.innerHTML = '<p style="color: #999;">No sync history yet.</p>';
+                    return;
+                }
+
+                logsList.innerHTML = logs.slice().reverse().map(log => `
+                    <div class="log-entry ${log.status === 'SUCCESS' ? 'success' : 'failed'}">
+                        <div class="log-status">
+                            ${log.status === 'SUCCESS' ? '✓' : '✗'} ${log.status}
+                        </div>
+                        <div class="log-keys">
+                            ${log.anaplan_key}${log.gfdh_key ? ' → ' + log.gfdh_key : ''}
+                        </div>
+                        <div style="margin-top: 5px; color: #666;">
+                            ${log.message}
+                        </div>
+                        <div class="log-time">
+                            ${new Date(log.timestamp).toLocaleString()}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                logsList.innerHTML = `<p style="color: #c62828;">Error loading logs: ${error.message}</p>`;
+            }
+        }
+
+        function showStatus(message, type) {
+            statusDiv.className = `status ${type}`;
+            const icons = {
+                success: '✓',
+                error: '✗',
+                loading: '⏳'
+            };
+            statusDiv.innerHTML = `<span class="status-icon">${icons[type]}</span>${message}`;
+        }
+
+        // Load logs on page load
+        loadLogs();
+    </script>
+</body>
+</html>

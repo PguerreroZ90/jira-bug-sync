@@ -1,0 +1,137 @@
+╔════════════════════════════════════════════════════════════════════════╗
+║           JIRA BUG SYNC MIDDLEWARE - DEPLOYMENT CHECKLIST              ║
+╚════════════════════════════════════════════════════════════════════════╝
+
+📋 STEP 1: FILES READY ✅
+┌─────────────────────────────────────────────────────────────────────────┐
+│ ✅ app.py                     - Flask backend
+│ ✅ templates/index.html       - Web UI
+│ ✅ requirements.txt           - Dependencies
+│ ✅ render.yaml               - Render config
+│ ✅ .gitignore                - Git ignore rules
+│ ✅ README.md                 - Documentation
+│ ✅ DEPLOYMENT_GUIDE.md       - Setup guide
+│ ✅ QUICK_DEPLOY.md           - This checklist
+└─────────────────────────────────────────────────────────────────────────┘
+
+📍 LOCATION
+┌─────────────────────────────────────────────────────────────────────────┐
+│ C:\Users\PATRICIO.GUERRERO\OneDrive - Zurich Insurance\Documents\
+│ Anaplan & EPM documents\jira_sync_middleware\
+└─────────────────────────────────────────────────────────────────────────┘
+
+🚀 STEP 2: PUSH TO GITHUB (5 minutes)
+┌─────────────────────────────────────────────────────────────────────────┐
+│ [ ] Create GitHub repo: https://github.com/new
+│     → Name: jira-bug-sync
+│     → Public
+│
+│ [ ] Clone repo locally
+│     git clone https://github.com/YOUR-USERNAME/jira-bug-sync.git
+│     cd jira-bug-sync
+│
+│ [ ] Copy all files from jira_sync_middleware/ into repo folder
+│
+│ [ ] Push to GitHub
+│     git add .
+│     git commit -m "Initial commit: JIRA bug sync middleware"
+│     git push origin main
+│
+│ [ ] Verify on GitHub (files show up at github.com/YOUR-USERNAME/jira-bug-sync)
+└─────────────────────────────────────────────────────────────────────────┘
+
+🌐 STEP 3: DEPLOY TO RENDER (5 minutes)
+┌─────────────────────────────────────────────────────────────────────────┐
+│ [ ] Go to: https://render.com/dashboard
+│ [ ] Sign up (free account)
+│ [ ] Click "New +" → "Web Service"
+│ [ ] Select "GitHub"
+│ [ ] Connect GitHub account (if needed)
+│ [ ] Select: jira-bug-sync repo
+│ [ ] Configure:
+│     Name: jira-bug-sync
+│     Environment: Python 3
+│     Build Command: pip install -r requirements.txt
+│     Start Command: gunicorn app:app --bind 0.0.0.0:$PORT
+│     Plan: Free
+│
+│ [ ] Click "Create Web Service"
+│ [ ] Wait for build (2-3 minutes)
+│ [ ] Check status = "Live" ✅
+│ [ ] Copy your URL: https://jira-bug-sync.onrender.com
+└─────────────────────────────────────────────────────────────────────────┘
+
+✅ STEP 4: TEST DEPLOYMENT (2 minutes)
+┌─────────────────────────────────────────────────────────────────────────┐
+│ [ ] Go to your URL: https://jira-bug-sync.onrender.com
+│ [ ] Enter bug key: ANAPLAN-824
+│ [ ] Click "Sync to GFDH"
+│ [ ] Wait for success message
+│ [ ] Check GFDH for new bug (should be GFDH-YYYY)
+│ [ ] Verify both issues are linked
+│ [ ] Check logs show success
+└─────────────────────────────────────────────────────────────────────────┘
+
+🎯 WHAT TO EXPECT
+┌─────────────────────────────────────────────────────────────────────────┐
+│ ✅ Clean UI with input field
+│ ✅ Sync button that works immediately
+│ ✅ Success confirmation with both bug keys
+│ ✅ Sync history log showing all past syncs
+│ ✅ Auto-assigns bugs to marina.segala@zurich.com
+│ ✅ Creates bidirectional links automatically
+└─────────────────────────────────────────────────────────────────────────┘
+
+⚙️ TOKENS (Already Configured)
+┌─────────────────────────────────────────────────────────────────────────┐
+│ ANAPLAN_TOKEN = (in render.yaml)
+│ GFDH_TOKEN = (in render.yaml)
+│
+│ Note: After UAT, revoke these tokens and regenerate new ones
+└─────────────────────────────────────────────────────────────────────────┘
+
+⏸️ RENDER.COM FREE TIER BEHAVIOR
+┌─────────────────────────────────────────────────────────────────────────┐
+│ • Auto-pauses after 15 minutes of no activity
+│ • WAKES UP automatically when you click sync button
+│ • First sync after sleep = ~5 sec delay (normal)
+│ • Subsequent syncs = instant
+│ • Perfect for UAT usage pattern
+│ • Costs: $0/month ✅
+└─────────────────────────────────────────────────────────────────────────┘
+
+📞 TROUBLESHOOTING
+┌─────────────────────────────────────────────────────────────────────────┐
+│ Issue: Deploy fails in Render
+│ → Check Render logs tab for build errors
+│ → Usually missing dependencies in requirements.txt
+│
+│ Issue: Sync button doesn't work
+│ → Open F12 (browser console) to see errors
+│ → Check Render logs
+│
+│ Issue: Service won't start
+│ → Verify render.yaml is in root of repo
+│ → Check all required files are in GitHub
+│
+│ Issue: Bug created but links failed
+│ → Bug still synced! Check GFDH for new issue
+│ → Links are nice-to-have, bug creation is critical
+│ → Check sync log for link error details
+└─────────────────────────────────────────────────────────────────────────┘
+
+✨ NEXT PHASES
+┌─────────────────────────────────────────────────────────────────────────┐
+│ Phase 1 (NOW):        Manual button testing on Render ← YOU ARE HERE
+│ Phase 2 (UAT):        Use this link to sync bugs during UAT
+│ Phase 3 (If Martin):  Add webhooks for full automation (no button)
+│ Phase 4 (Post-UAT):   Archive or upgrade as needed
+└─────────────────────────────────────────────────────────────────────────┘
+
+🎉 YOU'RE READY!
+
+Follow the steps above and you'll have a live middleware in ~10 minutes.
+
+Questions? Reply with deploy status and any error messages!
+
+═══════════════════════════════════════════════════════════════════════════
