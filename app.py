@@ -102,7 +102,9 @@ def fetch_anaplan_bug(bug_key):
 def create_gfdh_bug(anaplan_bug):
     """Create bug in GFDH with same fields"""
     try:
+        print(f"DEBUG: GFDH_TOKEN exists: {bool(GFDH_TOKEN)}, length: {len(GFDH_TOKEN) if GFDH_TOKEN else 0}")
         headers = get_gfdh_headers()
+        print(f"DEBUG: headers = {headers}")
 
         fields = anaplan_bug.get('fields', {})
 
