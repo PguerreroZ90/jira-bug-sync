@@ -106,9 +106,6 @@ def create_gfdh_bug(anaplan_bug):
 
         fields = anaplan_bug.get('fields', {})
 
-        # Get assignee user
-        assignee_user = get_user_by_email_gfdh(GFDH_ASSIGNEE)
-
         # Prepare GFDH payload
         gfdh_payload = {
             "fields": {
