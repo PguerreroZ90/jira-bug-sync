@@ -252,6 +252,16 @@
     </div>
 
     <script>
+// Fetch and display app version
+fetch('/api/version')
+  .then(r => r.json())
+  .then(data => {
+    document.getElementById('version').textContent = `Version: ${data.version}`;
+  })
+  .catch(() => {
+    document.getElementById('version').textContent = 'Version: unknown';
+  });
+
         const form = document.getElementById('syncForm');
         const bugKeyInput = document.getElementById('bugKey');
         const syncBtn = document.getElementById('syncBtn');
