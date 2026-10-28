@@ -118,11 +118,6 @@ def create_gfdh_bug(anaplan_bug):
             }
         }
 
-        # Add assignee if found
-        if assignee_user:
-            gfdh_payload["fields"]["assignee"] = {
-                "name": assignee_user.get('name') or assignee_user.get('key')
-            }
 
         resp = requests.post(
             f"{GFDH_URL}/rest/api/2/issue",
