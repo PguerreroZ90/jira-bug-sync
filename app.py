@@ -130,7 +130,7 @@ def create_gfdh_bug(anaplan_bug):
             created_issue = resp.json()
             return created_issue
         else:
-            return {"error": f"Status {resp.status_code}", "details": resp.text[:200]}
+            return {"error": f"Status {resp.status_code}", "full_response": resp.text}
     except Exception as e:
         return {"error": str(e)}
 
