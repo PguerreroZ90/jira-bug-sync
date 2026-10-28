@@ -11,6 +11,8 @@ from datetime import datetime
 import os
 
 app = Flask(__name__)
+APP_VERSION = "20261028_145447"  # Auto-updated on each commit
+
 
 # Configuration
 ANAPLAN_URL = "https://zurichinsurance.atlassian.net"
@@ -221,6 +223,10 @@ def create_link_gfdh_to_anaplan(gfdh_key, anaplan_key):
             return {"error": f"Status {resp.status_code}", "details": resp.text[:200]}
     except Exception as e:
         return {"error": str(e)}
+
+@app.route('/api/version', methods=['GET'])
+def get_version():
+    return {"version": APP_VERSION, "timestamp": datetime.now().isoformat()}
 
 # Routes
 
