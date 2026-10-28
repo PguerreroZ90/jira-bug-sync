@@ -112,7 +112,7 @@ def create_gfdh_bug(anaplan_bug):
                 "project": {"key": "GFDH"},
                 "summary": fields.get('summary', 'No title'),
                 "description": fields.get('description', ''),
-                "issuetype": {"name": "Bug"},
+                "issuetype": {"name": "Task"},
                 "priority": {"name": fields.get('priority', {}).get('name', 'Medium')},
                 "labels": [f"sync-from-{anaplan_bug.get('key')}", "cross-instance"]
             }
